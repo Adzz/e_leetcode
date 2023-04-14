@@ -1,0 +1,60 @@
+# Leetcode Problems in Elixir
+
+## Binary Search
+
+Given an array of integers `nums` which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1.
+
+You must write an algorithm with O(log n) runtime complexity.
+
+Example 1:
+
+```
+Input: nums = [-1,0,3,5,9,12], target = 9
+Output: 4
+Explanation: 9 exists in nums and its index is 4
+```
+
+Example 2:
+
+```
+Input: nums = [-1,0,3,5,9,12], target = 2
+Output: -1
+Explanation: 2 does not exist in nums so return -1
+```
+
+Constraints:
+
+```
+1 <= nums.length <= 104
+-104 < nums[i], target < 104
+All the integers in nums are unique.
+nums is sorted in ascending order.
+```
+
+```elixir
+# This version iterates one at a time. We can unroll the loop too, but
+defmodule Solution do
+  @spec search(nums :: [integer], target :: integer) :: integer
+  def search(list, target), do: search(list, target, 0)
+
+  def search([_, _, _, _, target | _rest], target, index), do: index + 4
+  def search([_, _, _, target | _rest], target, index), do: index + 3
+  def search([_, _, target | _rest], target, index), do: index + 2
+  def search([_, target | _rest], target, index), do: index + 1
+  def search([target | _rest], target, index), do: index
+
+  def search([_, _, _, _, _ | rest], target, index), do: search(rest, target, index + 5)
+  def search([_, _, _, _ | rest], target, index), do: search(rest, target, index + 4)
+  def search([_, _, _ | rest], target, index), do: search(rest, target, index + 3)
+  def search([_, _ | rest], target, index), do: search(rest, target, index + 2)
+  def search([_ | rest], target, index), do: search(rest, target, index + 1)
+
+  def search([], _target, _index), do: -1
+end
+```
+
+```elixir
+nums = [-1, 0, 3, 5, 9, 12]
+target = 9
+Solution.search(nums, target)
+```
