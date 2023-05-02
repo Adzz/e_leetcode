@@ -1,0 +1,122 @@
+# Missing Numbers
+
+## Section 1 - Naive Approach
+
+```elixir
+defmodule Solution do
+  @spec missing_number(nums :: [integer]) :: integer
+  # This is the max approach...
+
+  def missing_number(nums) do
+    seen = 0..length(nums) |> Enum.to_list()
+
+    nums
+    |> Enum.sort()
+    |> Enum.reduce_while(seen, fn n, [current | expected] ->
+      if n == current do
+        {:cont, expected}
+      else
+        {:halt, current}
+      end
+    end)
+    |> case do
+      [n] -> n
+      n -> n
+    end
+  end
+end
+
+Solution.missing_number([0, 1])
+```
+
+```elixir
+
+```
+
+## Section 2 - Better?
+
+```elixir
+defmodule Solution2 do
+  def missing_number(nums) do
+    find_missing(Enum.sort(nums), length(nums))
+  end
+
+  defp find_missing([max], max), do: 0
+  defp find_missing([next], max), do: next + 1
+
+  defp find_missing([current, next | rest], max) do
+    if current + 1 == next do
+      find_missing([next | rest], max)
+    else
+      current + 1
+    end
+  end
+end
+
+(Solution2.missing_number([0, 1]) == 2) |> IO.inspect()
+Solution2.missing_number([0]) |> IO.inspect()
+Solution2.missing_number([9, 6, 4, 2, 3, 5, 7, 0, 1]) |> IO.inspect()
+Solution2.missing_number([1]) |> IO.inspect()
+```
+
+## Section 3 - Map Sets
+
+```elixir
+defmodule Solution3 do
+  @spec missing_number(nums :: [integer]) :: integer
+  # This version always iterates through the whole list and doesn't
+  # stop as soon as we find the solution....
+
+  def missing_number(nums) do
+    expected = MapSet.new(0..length(nums))
+    nums = MapSet.new(nums)
+
+    expected
+    |> MapSet.difference(nums)
+    |> MapSet.to_list()
+    |> hd()
+  end
+end
+
+Solution3.missing_number([3, 0, 1])
+```
+
+## Section 4 - Just Maths
+
+```elixir
+defmodule Solution4 do
+  def missing_number(nums) do
+    expected_sum = Enum.sum(0..length(nums))
+    actual = Enum.sum(nums)
+    expected_sum - actual
+  end
+end
+
+Solution4.missing_number([3, 0, 1])
+```
+
+## Section 5 - Now Go Mad and do in one iteration?
+
+```elixir
+defmodule Solution5 do
+  def missing_number(nums) do
+    sum(nums, 0, 0)
+  end
+
+  def sum([], total, expected_max) do
+    sum_up_to(expected_max) - total
+  end
+
+  def sum([head | rest], total, expected_max) do
+    sum(rest, total + head, expected_max + 1)
+  end
+
+  defp sum_up_to(max) do
+    div(max * (max + 1), 2)
+  end
+end
+
+Solution5.missing_number([3, 0, 1])
+# Solution5.missing_number([0, 1])
+# Solution5.missing_number([0, 1, 2])
+```
